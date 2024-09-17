@@ -1,0 +1,112 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: lpnet-self-supervised-single-gpu-exp-$index
+  labels:
+    lpnet: train
+spec:
+  template:
+    metadata:
+      name: training-pod
+      labels:
+        lpnet: train
+    spec:
+      initContainers:
+      - name: clone-repo
+        image: shubhamkulkarni01/lpnet:latest
+        resources:
+          limits:
+            memory: 16Gi
+            cpu: 8
+            nvidia.com/gpu: 1
+            ephemeral-storage: 100Gi
+          requests:
+            memory: 16Gi
+            cpu: 8
+            nvidia.com/gpu: 1
+            ephemeral-storage: 100Gi
+        command: ["/bin/bash", "-c"]
+        args: 
+            ["cd /opt/repo && \
+              git clone 'https://gitlab.nrp-nautilus.io/skulkarn/lpnet-self-supervised.git' && \
+              git -C lpnet-self-supervised checkout $git_hash &&\
+              cd /opt/repo/lpnet-self-supervised && \
+              pip install pyyaml pydantic && \
+              python3 prepare_data.py $index"]
+        volumeMounts:
+        - mountPath: /tempdir
+          name: newawsmount
+        - mountPath: /awsmount
+          name: inputdata
+        - mountPath: /opt/repo
+          name: gitrepo
+        - mountPath: /data/out
+          name: datablock
+      containers:
+      - name: train-model
+        image: shubhamkulkarni01/lpnet:latest
+        resources:
+          limits:
+            memory: 96Gi
+            cpu: 48
+            nvidia.com/gpu: 4
+            ephemeral-storage: 100Gi
+          requests:
+            memory: 96Gi
+            cpu: 48
+            nvidia.com/gpu: 4
+            ephemeral-storage: 100Gi
+        command: ["/bin/bash", "-c"]
+        args: ["pip install opencv-python pydantic matplotlib lightning_bolts scikit-learn && \
+                cd /opt/repo/lpnet-self-supervised && \
+                python3 main.py $index"]
+        volumeMounts:
+        - mountPath: /newawsmount
+          name: newawsmount
+        - mountPath: /data/out
+          name: datablock
+        - mountPath: /opt/repo
+          name: gitrepo
+        - mountPath: /awsmount
+          name: inputdata
+        - mountPath: /dev/shm
+          name: dshm
+      volumes:
+        - name: datablock
+          persistentVolumeClaim:
+            claimName: lpnet-self-supervised-output-data
+        - name: gitrepo
+          emptyDir: {}
+        - name: newawsmount
+          persistentVolumeClaim:
+            claimName: lpnet-self-supervised-input-data
+        - name: dshm
+          emptyDir:
+            medium: Memory
+        - name: inputdata
+          emptyDir:
+            medium: Memory
+      restartPolicy: Never
+      tolerations:
+        - key: "nautilus.io/guru-research"
+          operator: "Exists"
+          effect: "NoSchedule"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                - key: nvidia.com/gpu.product
+                  operator: In
+                  values:
+                    - NVIDIA-GeForce-RTX-3090
+                    - NVIDIA-RTX-A6000
+                    - NVIDIA-RTX-A5000
+                    - NVIDIA-TITAN-RTX
+                    - Tesla-V100-SXM2-32GB
+                    - NVIDIA-RTX-A6000
+                    - NVIDIA-A100-PCIE-40GB-MIG-2g.10gb
+                    - NVIDIA-A100-SXM4-80GB
+                    - NVIDIA-A10
+                    - NVIDIA-A40
+  backoffLimit: 23

@@ -1,0 +1,919 @@
+runs:
+- compute:
+    logging_interval: 5
+    num_nodes: 8
+    num_workers: 8
+    overfit_batches: false
+  data:
+    basic_level: false
+    classes:
+    - 128
+    dataset: /awsmount
+    find_classes_data_path: 128
+    name: faces
+    output: /data/out/clean_data
+  model:
+    accumulate_grad_batches: 1
+    classes: 128
+    name: byol
+    zdim: 2048
+  name: byol_simclr_default
+  training:
+    batch_size: 256
+    epochs: 1000
+    initial_lr: 0.0001
+    lr_schedule_frequency: 1
+    lr_schedule_gamma: 0.99
+  transformations:
+    color:
+      active: false
+      grayscale_probability: 0.2
+      jitter_strength: 1.0
+    count: 3
+    crop:
+      crop_size: 180
+      points: 1
+      type: random
+    flip:
+      active: false
+      flip_probability: 0.5
+    foveat:
+      active: false
+    log_polar:
+      active: false
+      lp_out_shape:
+      - 192
+      - 164
+      mask: true
+      smoothing: 0
+    rotate:
+      active: false
+      max_rotate: 15
+    type: simclr
+- compute:
+    logging_interval: 5
+    num_nodes: 8
+    num_workers: 8
+    overfit_batches: false
+  data:
+    basic_level: false
+    classes:
+    - 128
+    dataset: /awsmount
+    find_classes_data_path: 128
+    name: faces
+    output: /data/out/clean_data
+  model:
+    accumulate_grad_batches: 1
+    classes: 128
+    name: byol
+    zdim: 2048
+  name: byol_simclr_lp
+  training:
+    batch_size: 256
+    epochs: 1000
+    initial_lr: 0.0001
+    lr_schedule_frequency: 1
+    lr_schedule_gamma: 0.99
+  transformations:
+    color:
+      active: false
+      grayscale_probability: 0.2
+      jitter_strength: 1.0
+    count: 3
+    crop:
+      crop_size: 180
+      points: 1
+      type: random
+    flip:
+      active: false
+      flip_probability: 0.5
+    foveat:
+      active: false
+    log_polar:
+      active: true
+      lp_out_shape:
+      - 192
+      - 164
+      mask: true
+      smoothing: 0
+    rotate:
+      active: false
+      max_rotate: 15
+    type: simclr
+- compute:
+    logging_interval: 5
+    num_nodes: 8
+    num_workers: 8
+    overfit_batches: false
+  data:
+    basic_level: false
+    classes:
+    - 128
+    dataset: /awsmount
+    find_classes_data_path: 128
+    name: faces
+    output: /data/out/clean_data
+  model:
+    accumulate_grad_batches: 1
+    classes: 128
+    name: byol
+    zdim: 2048
+  name: byol_custom_default
+  training:
+    batch_size: 256
+    epochs: 1000
+    initial_lr: 0.0001
+    lr_schedule_frequency: 1
+    lr_schedule_gamma: 0.99
+  transformations:
+    color:
+      active: false
+      grayscale_probability: 0.2
+      jitter_strength: 1.0
+    count: 3
+    crop:
+      crop_size: 180
+      points: 1
+      type: random
+    flip:
+      active: false
+      flip_probability: 0.5
+    foveat:
+      active: false
+    log_polar:
+      active: false
+      lp_out_shape:
+      - 192
+      - 164
+      mask: true
+      smoothing: 0
+    rotate:
+      active: false
+      max_rotate: 15
+    type: custom
+- compute:
+    logging_interval: 5
+    num_nodes: 8
+    num_workers: 8
+    overfit_batches: false
+  data:
+    basic_level: false
+    classes:
+    - 128
+    dataset: /awsmount
+    find_classes_data_path: 128
+    name: faces
+    output: /data/out/clean_data
+  model:
+    accumulate_grad_batches: 1
+    classes: 128
+    name: byol
+    zdim: 2048
+  name: byol_custom_lp
+  training:
+    batch_size: 256
+    epochs: 1000
+    initial_lr: 0.0001
+    lr_schedule_frequency: 1
+    lr_schedule_gamma: 0.99
+  transformations:
+    color:
+      active: false
+      grayscale_probability: 0.2
+      jitter_strength: 1.0
+    count: 3
+    crop:
+      crop_size: 180
+      points: 1
+      type: random
+    flip:
+      active: false
+      flip_probability: 0.5
+    foveat:
+      active: false
+    log_polar:
+      active: true
+      lp_out_shape:
+      - 192
+      - 164
+      mask: true
+      smoothing: 0
+    rotate:
+      active: false
+      max_rotate: 15
+    type: custom
+- compute:
+    logging_interval: 5
+    num_nodes: 8
+    num_workers: 8
+    overfit_batches: false
+  data:
+    basic_level: false
+    classes:
+    - 128
+    dataset: /awsmount
+    find_classes_data_path: 128
+    name: faces
+    output: /data/out/clean_data
+  model:
+    accumulate_grad_batches: 1
+    classes: 128
+    name: byol
+    zdim: 2048
+  name: byol_hemisphere_default
+  training:
+    batch_size: 256
+    epochs: 1000
+    initial_lr: 0.0001
+    lr_schedule_frequency: 1
+    lr_schedule_gamma: 0.99
+  transformations:
+    color:
+      active: false
+      grayscale_probability: 0.2
+      jitter_strength: 1.0
+    count: 3
+    crop:
+      crop_size: 180
+      points: 1
+      type: random
+    flip:
+      active: false
+      flip_probability: 0.5
+    foveat:
+      active: false
+    log_polar:
+      active: false
+      lp_out_shape:
+      - 192
+      - 164
+      mask: true
+      smoothing: 0
+    rotate:
+      active: false
+      max_rotate: 15
+    type: hemisphere
+- compute:
+    logging_interval: 5
+    num_nodes: 8
+    num_workers: 8
+    overfit_batches: false
+  data:
+    basic_level: false
+    classes:
+    - 128
+    dataset: /awsmount
+    find_classes_data_path: 128
+    name: faces
+    output: /data/out/clean_data
+  model:
+    accumulate_grad_batches: 1
+    classes: 128
+    name: byol
+    zdim: 2048
+  name: byol_hemisphere_lp
+  training:
+    batch_size: 256
+    epochs: 1000
+    initial_lr: 0.0001
+    lr_schedule_frequency: 1
+    lr_schedule_gamma: 0.99
+  transformations:
+    color:
+      active: false
+      grayscale_probability: 0.2
+      jitter_strength: 1.0
+    count: 3
+    crop:
+      crop_size: 180
+      points: 1
+      type: random
+    flip:
+      active: false
+      flip_probability: 0.5
+    foveat:
+      active: false
+    log_polar:
+      active: true
+      lp_out_shape:
+      - 192
+      - 164
+      mask: true
+      smoothing: 0
+    rotate:
+      active: false
+      max_rotate: 15
+    type: hemisphere
+- compute:
+    logging_interval: 5
+    num_nodes: 8
+    num_workers: 8
+    overfit_batches: false
+  data:
+    basic_level: false
+    classes:
+    - 128
+    dataset: /awsmount
+    find_classes_data_path: 128
+    name: dogs
+    output: /data/out/clean_data
+  model:
+    accumulate_grad_batches: 1
+    classes: 128
+    name: byol
+    zdim: 2048
+  name: byol_simclr_default
+  training:
+    batch_size: 256
+    epochs: 1000
+    initial_lr: 0.0001
+    lr_schedule_frequency: 1
+    lr_schedule_gamma: 0.99
+  transformations:
+    color:
+      active: false
+      grayscale_probability: 0.2
+      jitter_strength: 1.0
+    count: 3
+    crop:
+      crop_size: 180
+      points: 1
+      type: random
+    flip:
+      active: false
+      flip_probability: 0.5
+    foveat:
+      active: false
+    log_polar:
+      active: false
+      lp_out_shape:
+      - 192
+      - 164
+      mask: true
+      smoothing: 0
+    rotate:
+      active: false
+      max_rotate: 15
+    type: simclr
+- compute:
+    logging_interval: 5
+    num_nodes: 8
+    num_workers: 8
+    overfit_batches: false
+  data:
+    basic_level: false
+    classes:
+    - 128
+    dataset: /awsmount
+    find_classes_data_path: 128
+    name: dogs
+    output: /data/out/clean_data
+  model:
+    accumulate_grad_batches: 1
+    classes: 128
+    name: byol
+    zdim: 2048
+  name: byol_simclr_lp
+  training:
+    batch_size: 256
+    epochs: 1000
+    initial_lr: 0.0001
+    lr_schedule_frequency: 1
+    lr_schedule_gamma: 0.99
+  transformations:
+    color:
+      active: false
+      grayscale_probability: 0.2
+      jitter_strength: 1.0
+    count: 3
+    crop:
+      crop_size: 180
+      points: 1
+      type: random
+    flip:
+      active: false
+      flip_probability: 0.5
+    foveat:
+      active: false
+    log_polar:
+      active: true
+      lp_out_shape:
+      - 192
+      - 164
+      mask: true
+      smoothing: 0
+    rotate:
+      active: false
+      max_rotate: 15
+    type: simclr
+- compute:
+    logging_interval: 5
+    num_nodes: 8
+    num_workers: 8
+    overfit_batches: false
+  data:
+    basic_level: false
+    classes:
+    - 128
+    dataset: /awsmount
+    find_classes_data_path: 128
+    name: dogs
+    output: /data/out/clean_data
+  model:
+    accumulate_grad_batches: 1
+    classes: 128
+    name: byol
+    zdim: 2048
+  name: byol_custom_default
+  training:
+    batch_size: 256
+    epochs: 1000
+    initial_lr: 0.0001
+    lr_schedule_frequency: 1
+    lr_schedule_gamma: 0.99
+  transformations:
+    color:
+      active: false
+      grayscale_probability: 0.2
+      jitter_strength: 1.0
+    count: 3
+    crop:
+      crop_size: 180
+      points: 1
+      type: random
+    flip:
+      active: false
+      flip_probability: 0.5
+    foveat:
+      active: false
+    log_polar:
+      active: false
+      lp_out_shape:
+      - 192
+      - 164
+      mask: true
+      smoothing: 0
+    rotate:
+      active: false
+      max_rotate: 15
+    type: custom
+- compute:
+    logging_interval: 5
+    num_nodes: 8
+    num_workers: 8
+    overfit_batches: false
+  data:
+    basic_level: false
+    classes:
+    - 128
+    dataset: /awsmount
+    find_classes_data_path: 128
+    name: dogs
+    output: /data/out/clean_data
+  model:
+    accumulate_grad_batches: 1
+    classes: 128
+    name: byol
+    zdim: 2048
+  name: byol_custom_lp
+  training:
+    batch_size: 256
+    epochs: 1000
+    initial_lr: 0.0001
+    lr_schedule_frequency: 1
+    lr_schedule_gamma: 0.99
+  transformations:
+    color:
+      active: false
+      grayscale_probability: 0.2
+      jitter_strength: 1.0
+    count: 3
+    crop:
+      crop_size: 180
+      points: 1
+      type: random
+    flip:
+      active: false
+      flip_probability: 0.5
+    foveat:
+      active: false
+    log_polar:
+      active: true
+      lp_out_shape:
+      - 192
+      - 164
+      mask: true
+      smoothing: 0
+    rotate:
+      active: false
+      max_rotate: 15
+    type: custom
+- compute:
+    logging_interval: 5
+    num_nodes: 8
+    num_workers: 8
+    overfit_batches: false
+  data:
+    basic_level: false
+    classes:
+    - 128
+    dataset: /awsmount
+    find_classes_data_path: 128
+    name: dogs
+    output: /data/out/clean_data
+  model:
+    accumulate_grad_batches: 1
+    classes: 128
+    name: byol
+    zdim: 2048
+  name: byol_hemisphere_default
+  training:
+    batch_size: 256
+    epochs: 1000
+    initial_lr: 0.0001
+    lr_schedule_frequency: 1
+    lr_schedule_gamma: 0.99
+  transformations:
+    color:
+      active: false
+      grayscale_probability: 0.2
+      jitter_strength: 1.0
+    count: 3
+    crop:
+      crop_size: 180
+      points: 1
+      type: random
+    flip:
+      active: false
+      flip_probability: 0.5
+    foveat:
+      active: false
+    log_polar:
+      active: false
+      lp_out_shape:
+      - 192
+      - 164
+      mask: true
+      smoothing: 0
+    rotate:
+      active: false
+      max_rotate: 15
+    type: hemisphere
+- compute:
+    logging_interval: 5
+    num_nodes: 8
+    num_workers: 8
+    overfit_batches: false
+  data:
+    basic_level: false
+    classes:
+    - 128
+    dataset: /awsmount
+    find_classes_data_path: 128
+    name: dogs
+    output: /data/out/clean_data
+  model:
+    accumulate_grad_batches: 1
+    classes: 128
+    name: byol
+    zdim: 2048
+  name: byol_hemisphere_lp
+  training:
+    batch_size: 256
+    epochs: 1000
+    initial_lr: 0.0001
+    lr_schedule_frequency: 1
+    lr_schedule_gamma: 0.99
+  transformations:
+    color:
+      active: false
+      grayscale_probability: 0.2
+      jitter_strength: 1.0
+    count: 3
+    crop:
+      crop_size: 180
+      points: 1
+      type: random
+    flip:
+      active: false
+      flip_probability: 0.5
+    foveat:
+      active: false
+    log_polar:
+      active: true
+      lp_out_shape:
+      - 192
+      - 164
+      mask: true
+      smoothing: 0
+    rotate:
+      active: false
+      max_rotate: 15
+    type: hemisphere
+- compute:
+    logging_interval: 5
+    num_nodes: 8
+    num_workers: 8
+    overfit_batches: false
+  data:
+    basic_level: false
+    classes:
+    - 100
+    dataset: /awsmount
+    find_classes_data_path: 100
+    name: imagenet100
+    output: /data/out/clean_data
+  model:
+    accumulate_grad_batches: 1
+    classes: 128
+    name: byol
+    zdim: 2048
+  name: byol_simclr_default
+  training:
+    batch_size: 256
+    epochs: 1000
+    initial_lr: 0.0001
+    lr_schedule_frequency: 1
+    lr_schedule_gamma: 0.99
+  transformations:
+    color:
+      active: false
+      grayscale_probability: 0.2
+      jitter_strength: 1.0
+    count: 3
+    crop:
+      crop_size: 180
+      points: 1
+      type: random
+    flip:
+      active: false
+      flip_probability: 0.5
+    foveat:
+      active: false
+    log_polar:
+      active: false
+      lp_out_shape:
+      - 192
+      - 164
+      mask: true
+      smoothing: 0
+    rotate:
+      active: false
+      max_rotate: 15
+    type: simclr
+- compute:
+    logging_interval: 5
+    num_nodes: 8
+    num_workers: 8
+    overfit_batches: false
+  data:
+    basic_level: false
+    classes:
+    - 100
+    dataset: /awsmount
+    find_classes_data_path: 100
+    name: imagenet100
+    output: /data/out/clean_data
+  model:
+    accumulate_grad_batches: 1
+    classes: 128
+    name: byol
+    zdim: 2048
+  name: byol_simclr_lp
+  training:
+    batch_size: 256
+    epochs: 1000
+    initial_lr: 0.0001
+    lr_schedule_frequency: 1
+    lr_schedule_gamma: 0.99
+  transformations:
+    color:
+      active: false
+      grayscale_probability: 0.2
+      jitter_strength: 1.0
+    count: 3
+    crop:
+      crop_size: 180
+      points: 1
+      type: random
+    flip:
+      active: false
+      flip_probability: 0.5
+    foveat:
+      active: false
+    log_polar:
+      active: true
+      lp_out_shape:
+      - 192
+      - 164
+      mask: true
+      smoothing: 0
+    rotate:
+      active: false
+      max_rotate: 15
+    type: simclr
+- compute:
+    logging_interval: 5
+    num_nodes: 8
+    num_workers: 8
+    overfit_batches: false
+  data:
+    basic_level: false
+    classes:
+    - 100
+    dataset: /awsmount
+    find_classes_data_path: 100
+    name: imagenet100
+    output: /data/out/clean_data
+  model:
+    accumulate_grad_batches: 1
+    classes: 128
+    name: byol
+    zdim: 2048
+  name: byol_custom_default
+  training:
+    batch_size: 256
+    epochs: 1000
+    initial_lr: 0.0001
+    lr_schedule_frequency: 1
+    lr_schedule_gamma: 0.99
+  transformations:
+    color:
+      active: false
+      grayscale_probability: 0.2
+      jitter_strength: 1.0
+    count: 3
+    crop:
+      crop_size: 180
+      points: 1
+      type: random
+    flip:
+      active: false
+      flip_probability: 0.5
+    foveat:
+      active: false
+    log_polar:
+      active: false
+      lp_out_shape:
+      - 192
+      - 164
+      mask: true
+      smoothing: 0
+    rotate:
+      active: false
+      max_rotate: 15
+    type: custom
+- compute:
+    logging_interval: 5
+    num_nodes: 8
+    num_workers: 8
+    overfit_batches: false
+  data:
+    basic_level: false
+    classes:
+    - 100
+    dataset: /awsmount
+    find_classes_data_path: 100
+    name: imagenet100
+    output: /data/out/clean_data
+  model:
+    accumulate_grad_batches: 1
+    classes: 128
+    name: byol
+    zdim: 2048
+  name: byol_custom_lp
+  training:
+    batch_size: 256
+    epochs: 1000
+    initial_lr: 0.0001
+    lr_schedule_frequency: 1
+    lr_schedule_gamma: 0.99
+  transformations:
+    color:
+      active: false
+      grayscale_probability: 0.2
+      jitter_strength: 1.0
+    count: 3
+    crop:
+      crop_size: 180
+      points: 1
+      type: random
+    flip:
+      active: false
+      flip_probability: 0.5
+    foveat:
+      active: false
+    log_polar:
+      active: true
+      lp_out_shape:
+      - 192
+      - 164
+      mask: true
+      smoothing: 0
+    rotate:
+      active: false
+      max_rotate: 15
+    type: custom
+- compute:
+    logging_interval: 5
+    num_nodes: 8
+    num_workers: 8
+    overfit_batches: false
+  data:
+    basic_level: false
+    classes:
+    - 100
+    dataset: /awsmount
+    find_classes_data_path: 100
+    name: imagenet100
+    output: /data/out/clean_data
+  model:
+    accumulate_grad_batches: 1
+    classes: 128
+    name: byol
+    zdim: 2048
+  name: byol_hemisphere_default
+  training:
+    batch_size: 256
+    epochs: 1000
+    initial_lr: 0.0001
+    lr_schedule_frequency: 1
+    lr_schedule_gamma: 0.99
+  transformations:
+    color:
+      active: false
+      grayscale_probability: 0.2
+      jitter_strength: 1.0
+    count: 3
+    crop:
+      crop_size: 180
+      points: 1
+      type: random
+    flip:
+      active: false
+      flip_probability: 0.5
+    foveat:
+      active: false
+    log_polar:
+      active: false
+      lp_out_shape:
+      - 192
+      - 164
+      mask: true
+      smoothing: 0
+    rotate:
+      active: false
+      max_rotate: 15
+    type: hemisphere
+- compute:
+    logging_interval: 5
+    num_nodes: 8
+    num_workers: 8
+    overfit_batches: false
+  data:
+    basic_level: false
+    classes:
+    - 100
+    dataset: /awsmount
+    find_classes_data_path: 100
+    name: imagenet100
+    output: /data/out/clean_data
+  model:
+    accumulate_grad_batches: 1
+    classes: 128
+    name: byol
+    zdim: 2048
+  name: byol_hemisphere_lp
+  training:
+    batch_size: 256
+    epochs: 1000
+    initial_lr: 0.0001
+    lr_schedule_frequency: 1
+    lr_schedule_gamma: 0.99
+  transformations:
+    color:
+      active: false
+      grayscale_probability: 0.2
+      jitter_strength: 1.0
+    count: 3
+    crop:
+      crop_size: 180
+      points: 1
+      type: random
+    flip:
+      active: false
+      flip_probability: 0.5
+    foveat:
+      active: false
+    log_polar:
+      active: true
+      lp_out_shape:
+      - 192
+      - 164
+      mask: true
+      smoothing: 0
+    rotate:
+      active: false
+      max_rotate: 15
+    type: hemisphere

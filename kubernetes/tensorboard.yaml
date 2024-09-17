@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clnet-tensorboard
+  labels:
+    clnet: tensorboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      clnet: tensorboard
+  template:
+    metadata:
+      name: training-pod
+      labels:
+        clnet: tensorboard
+    spec:
+      containers:
+      - name: tensorboard
+        image: shubhamkulkarni01/lpnet:latest
+        command: ["/bin/sh", "-c"]
+        args: ["pip3 install tensorboard && \
+                tensorboard --logdir /data/out/clean_datav2/tensorboard/data_faces/model_ED/ --bind_all"]
+        resources:
+          limits:
+            memory: 32Gi
+            cpu: 4
+          requests:
+            memory: 900Mi
+            cpu: 50m
+        volumeMounts:
+        - mountPath: /data/out
+          name: datablock
+        ports:
+        - containerPort: 6006
+      volumes:
+        - name: datablock
+          persistentVolumeClaim:
+            claimName: aditi-data
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                - key: kubernetes.io/hostname
+                  operator: NotIn
+                  values:
+                    - k8-1.gpn.onenet.net
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    lpnet: train
+  name: clnet-svc
+spec:
+  ports:
+  - port: 6006
+    protocol: TCP
+    targetPort: 6006
+  selector:
+    clnet: tensorboard
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: haproxy
+  name: clnet-ingress
+spec:
+  rules:
+  - host: clnet.nrp-nautilus.io
+    http:
+      paths:
+      - backend:
+          service:
+            name: clnet-svc
+            port:
+              number: 6006
+        path: /
+        pathType: ImplementationSpecific
+  tls:
+  - hosts:
+    - clnet.nrp-nautilus.io

@@ -1,0 +1,6 @@
+/data/out/clean_datav2/tensorboard/data_faces/model_resnet_small/transform_custom/non_lp_res18_128_node8/epoch=1999-step=18000.ckpt
+/data/out/clean_datav2/tensorboard/data_faces/model_resnet_small/transform_custom/non_lp_res18_128_node8_aug/epoch=1999-step=86000.ckpt
+/data/out/clean_datav2/tensorboard/data_faces/model_vgg/transform_custom/lp_vgg_128_node8/epoch=1999-step=18000.ckpt
+/data/out/clean_datav2/tensorboard/data_faces/model_vgg/transform_custom/non_lp_vgg_128_node8/epoch=1999-step=18000.ckpt
+/data/out/clean_datav2/tensorboard/data_faces/model_vgg/transform_custom/lp_vgg_128_node8_aug/epoch=328-step=27965.ckpt
+/data/out/clean_datav2/tensorboard/data_faces/model_vgg/transform_custom/non_lp_vgg_128_node8_aug/epoch=288-step=24565.ckpt

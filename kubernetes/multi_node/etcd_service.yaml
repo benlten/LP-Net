@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    lpnet: mn-job$jobidx-commit$trunc_hash-router
+  name: mn-job$jobidx-commit$trunc_hash-router
+spec:
+  ports:
+    - name: rendezvous
+      port: 29400
+      protocol: TCP
+      targetPort: 29400
+    - name: training
+      port: 3475
+      protocol: TCP
+      targetPort: 3475
+    - name: etcd1
+      port: 2379
+      protocol: TCP
+    - name: etcd2
+      port: 2380
+      protocol: TCP
+  selector:
+    lpnet: multi-node-job$jobidx-commit$trunc_hash-etcd
+  type: ClusterIP

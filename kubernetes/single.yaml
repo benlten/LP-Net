@@ -1,0 +1,114 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: lpnet-self-supervised-single-gpu-exp-lp-simclr
+  labels:
+    lpnet: train
+spec:
+  template:
+    metadata:
+      name: training-pod
+      labels:
+        lpnet: train
+    spec:
+      initContainers:
+      - name: clone-repo
+        image: alpine
+        resources:
+          limits:
+            memory: 16Gi
+            cpu: 8
+            nvidia.com/gpu: 1
+            ephemeral-storage: 100Gi
+          requests:
+            memory: 16Gi
+            cpu: 8
+            nvidia.com/gpu: 1
+            ephemeral-storage: 100Gi
+        command: ["/bin/ash", "-c"]
+
+          # echo 'loading imagenet' && tar xzf /tempdir/imagenet_raw.tar.gz && \
+          # echo 'loading dogs' && tar xzf /tempdir/dogs.tar.gz && \
+          # echo 'loading objects' && tar xzf /tempdir/objects.tar.gz && \
+          # echo 'loading faces' && tar xzf /tempdir/faces.tar.gz && \
+          # echo 'loading all objects' && tar xzf /tempdir/all_ex_objects_4.tar.gz && \
+        args: 
+            ["apk add git && \
+              cd /opt/repo && \
+              git clone 'https://gitlab.nrp-nautilus.io/skulkarn/lpnet-self-supervised.git' --branch main && \
+              cd /opt/repo/lpnet-self-supervised && \
+              python prepare_data.py
+            "]
+        volumeMounts:
+        - mountPath: /tempdir
+          name: newawsmount
+        - mountPath: /awsmount
+          name: inputdata
+        - mountPath: /opt/repo
+          name: gitrepo
+        - mountPath: /data/out
+          name: datablock
+      containers:
+      - name: train-model
+        image: shubhamkulkarni01/lpnet:latest
+        resources:
+          limits:
+            memory: 64Gi
+            cpu: 32
+            nvidia.com/gpu: 1
+            ephemeral-storage: 100Gi
+          requests:
+            memory: 64Gi
+            cpu: 32
+            nvidia.com/gpu: 1
+            ephemeral-storage: 100Gi
+        command: ["/bin/bash", "-c"]
+        args: ["pip install opencv-python pydantic matplotlib lightning_bolts && \
+                cd /opt/repo/lpnet-self-supervised && \
+                python3 byol.py"]
+        volumeMounts:
+        - mountPath: /oldawsmount
+          name: oldawsmount
+        - mountPath: /newawsmount
+          name: newawsmount
+        - mountPath: /data/out
+          name: datablock
+        - mountPath: /opt/repo
+          name: gitrepo
+        - mountPath: /awsmount
+          name: inputdata
+        - mountPath: /dev/shm
+          name: dshm
+      volumes:
+        - name: datablock
+          persistentVolumeClaim:
+            claimName: lpnet-self-supervised-output-data
+        - name: gitrepo
+          emptyDir: {}
+        - name: oldawsmount
+          persistentVolumeClaim:
+            claimName: stim-data-mount
+        - name: newawsmount
+          persistentVolumeClaim:
+            claimName: lpnet-self-supervised-input-data
+        - name: dshm
+          emptyDir:
+            medium: Memory
+        - name: inputdata
+          emptyDir:
+            medium: Memory
+      restartPolicy: Never
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                - key: nvidia.com/gpu.product
+                  operator: In
+                  values:
+                    - NVIDIA-A100-PCIE-40GB-MIG-2g.10gb
+                    - NVIDIA-A100-SXM4-80GB
+                    - NVIDIA-A10
+                    - NVIDIA-A40
+                    - NVIDIA-GeForce-RTX-3090
+  backoffLimit: 23

@@ -1,0 +1,95 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: lpnet-notebook
+  labels:
+    lpnet: train
+spec:
+  template:
+    metadata:
+      name: training-pod
+      labels:
+        lpnet: train
+    spec:
+      initContainers:
+      - name: clone-repo
+        image: alpine
+        resources:
+          limits:
+            memory: 4Gi
+            cpu: 1
+            nvidia.com/gpu: 1
+          requests:
+            memory: 4Gi
+            cpu: 1
+            nvidia.com/gpu: 1
+        command: ["/bin/ash", "-c"]
+        args: 
+            ["apk add git && \
+              cd /opt/repo && \
+              git clone https://gitlab.nrp-nautilus.io/marthagahl/lpnet.git --branch shubham" ]
+        volumeMounts:
+        - mountPath: /opt/repo
+          name: gitrepo
+      containers:
+      - name: notebook
+        image: gitlab-registry.nautilus.optiputer.net/prp/jupyter-stack/prp
+        resources:
+          limits:
+            memory: 24Gi
+            cpu: 4
+          requests:
+            memory: 24Gi
+            cpu: 4
+        command: ["jupyter", "notebook", "--ip='0.0.0.0'"]
+        volumeMounts:
+        - mountPath: /data/out
+          name: datablock
+        - mountPath: /opt/repo
+          name: gitrepo
+        - mountPath: /awsmount
+          name: awsmount
+      volumes:
+        - name: datablock
+          persistentVolumeClaim:
+            claimName: lpnet-output-data
+        - name: gitrepo
+          emptyDir: {}
+        - name: awsmount
+          persistentVolumeClaim:
+            claimName: lpnet-aws-mount
+      restartPolicy: Never
+  backoffLimit: 7
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    job: lpnet
+  name: lpnet-svc
+spec:
+  ports:
+  - port: 8888
+    protocol: TCP
+    targetPort: 8888
+  selector:
+    lpnet: train
+  type: ClusterIP
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.tls: ""
+  name: lpnet-ingress
+spec:
+  rules:
+  - host: lpnet.nautilus.optiputer.net
+    http:
+      paths:
+      - backend:
+          serviceName: lpnet-svc
+          servicePort: 8888
+        path: /
+

@@ -1,0 +1,146 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: self-supervised-mn-job$jobidx-commit$trunc_hash-$nodeidx
+  labels:
+    lpnet: train
+    jobid: job-$jobidx
+    commit: commit-$trunc_hash
+    nodeid: node-$nodeidx
+spec:
+  template:
+    metadata:
+      name: self-supervised-mn-job$jobidx-commit$trunc_hash-$nodeidx
+      labels:
+        lpnet: train
+        jobid: job-$jobidx
+        commit: commit-$trunc_hash
+        nodeid: node-$nodeidx
+    spec:
+      automountServiceAccountToken: false
+      initContainers:
+      - name: clone-repo
+        image: shubhamkulkarni01/lpnet:original_pytorch
+        resources:
+          limits:
+            memory: 24Gi
+            cpu: 12
+            ephemeral-storage: 100Gi
+          requests:
+            memory: 24Gi
+            cpu: 12
+            ephemeral-storage: 100Gi
+        command: ["/bin/bash", "-c"]
+        args: 
+            ["cd /opt/repo && \
+              rm -rf lpnet-self-supervised && \
+              git clone 'https://gitlab.nrp-nautilus.io/Mrigankshi/lpnet-self-supervised' && \
+              git -C lpnet-self-supervised checkout $git_hash && \
+              cd /opt/repo/lpnet-self-supervised && \
+              python3 prepare_data.py $jobidx"]
+        volumeMounts:
+        - mountPath: /tempdir
+          name: newawsmount
+        - mountPath: /awsmount
+          name: inputdata
+        - mountPath: /opt/repo
+          name: gitrepo
+        - mountPath: /data/out
+          name: datablock
+      containers:
+      - name: train-model
+        image: shubhamkulkarni01/lpnet:original_pytorch
+        env:
+          - name: WANDB_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: wandb-key-secret
+                key: WANDB_API_KEY
+        resources:
+          limits:
+            memory: 32Gi
+            cpu: 8
+            nvidia.com/gpu: 1
+            ephemeral-storage: 100Gi
+          requests:
+            memory: 32Gi
+            cpu: 8
+            nvidia.com/gpu: 1
+            ephemeral-storage: 100Gi
+        command: ["/bin/bash", "-c"]
+        args: ["pip install wandb && \
+                pip install opencv-contrib-python && \
+                pip install umap-learn && \
+                conda list && \
+                cd /opt/repo/lpnet-self-supervised && \
+                LOGLEVEL=DEBUG torchrun \
+                    --nnodes=$total \
+                    --nproc_per_node=1 \
+                    --max_restarts=0 \
+                    --rdzv_id=job-$jobidx \
+                    --rdzv_backend=static \
+                    --rdzv_endpoint=mn-job$jobidx-commit$trunc_hash-router:29400 \
+                    --master_addr=mn-job$jobidx-commit$trunc_hash-router \
+                    --master_port=3475 \
+                    --node_rank=$nodeidx \
+                    main.py $jobidx
+        "]
+        volumeMounts:
+        - mountPath: /newawsmount
+          name: newawsmount
+        - mountPath: /data/out
+          name: datablock
+        - mountPath: /opt/repo
+          name: gitrepo
+        - mountPath: /awsmount
+          name: inputdata
+        - mountPath: /dev/shm
+          name: dshm
+      volumes:
+        - name: datablock
+          persistentVolumeClaim:
+            claimName: aditi-data
+        - name: gitrepo
+          emptyDir: {}
+        - name: newawsmount
+          persistentVolumeClaim:
+            claimName: aditi-input-data
+        - name: dshm
+          emptyDir:
+            medium: Memory
+        - name: inputdata
+          emptyDir: 
+            medium: Memory
+      restartPolicy: OnFailure
+      # tolerations:
+      # - key: "nautilus.io/nrp-testing"
+      #   operator: "Exists"
+      #   effect: "NoSchedule"
+      # - key: "nautilus.io/testing"
+      #   operator: "Exists"
+      #   effect: "NoSchedule"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                - key: nvidia.com/gpu.product
+                  operator: In
+                  values:
+#                    - NVIDIA-A100-PCIE-40GB-MIG-2g.10gb
+                    - NVIDIA-A100-SXM4-80GB
+#                    - NVIDIA-A100-SXM4-80GB-MIG-1g.10gb
+                    - NVIDIA-A100-80GB-PCIe
+#                    - NVIDIA-A100-80GB-PCIe-MIG-1g.10gb
+                    # - NVIDIA-RTX-A6000
+                    - NVIDIA-A10
+                    - NVIDIA-A40
+                    # - NVIDIA-GeForce-RTX-3090
+                    # - NVIDIA-GeForce-RTX-2080-Ti
+                    # - NVIDIA-TITAN-Xp
+                    # - NVIDIA-TITAN-RTX
+                - key: kubernetes.io/hostname
+                  operator: NotIn
+                  values:
+                    - gpn-fiona-mizzou-1.rnet.missouri.edu
+  backoffLimit: 23

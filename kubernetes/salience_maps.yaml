@@ -1,0 +1,81 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: lpnet-salience-maps
+  labels:
+    lpnet: train
+spec:
+  template:
+    metadata:
+      name: training-pod
+      labels:
+        lpnet: train
+    spec:
+      initContainers:
+      - name: clone-repo
+        image: alpine
+        # image: localhost:30081/library/alpine
+        resources:
+          limits:
+            memory: 4Gi
+            cpu: 1
+            nvidia.com/gpu: 1
+          requests:
+            memory: 4Gi
+            cpu: 1
+            nvidia.com/gpu: 1
+        command: ["/bin/ash", "-c"]
+        args: 
+            ["apk add git && \
+              cd /opt/repo && \
+              git clone https://gitlab.nrp-nautilus.io/marthagahl/lpnet.git --branch shubham" ]
+        volumeMounts:
+        - mountPath: /opt/repo
+          name: gitrepo
+        - mountPath: /data/out
+          name: datablock
+      containers:
+      - name: generate-salience-maps
+        image: tensorflow/tensorflow:latest-gpu
+        resources:
+          limits:
+            memory: 16Gi
+            cpu: 8
+            nvidia.com/gpu: 1
+          requests:
+            memory: 16Gi
+            cpu: 8
+            nvidia.com/gpu: 1
+        command: ["/bin/bash", "-c"]
+        args: ["cd /opt/repo/lpnet && pip install tqdm pillow && python make_salience_maps.py"]
+        volumeMounts:
+        - mountPath: /data/out
+          name: datablock
+        - mountPath: /opt/repo
+          name: gitrepo
+        - mountPath: /awsmount
+          name: awsmount
+      volumes:
+        - name: datablock
+          persistentVolumeClaim:
+            claimName: lpnet-output-data
+        - name: gitrepo
+          emptyDir: {}
+        - name: awsmount
+          persistentVolumeClaim:
+            claimName: lpnet-aws-mount
+      restartPolicy: Never
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                - key: gpu-type
+                  operator: In
+                  values:
+                    - A100
+                    - A40
+                    - "3090"
+                    - titan-xp
+                    - 2080Ti
+  backoffLimit: 7

@@ -1,0 +1,101 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: lpnet-evaluate-model-$l_index-$r_index
+  labels:
+    lpnet: evaluation
+spec:
+  template:
+    metadata:
+      name: evaluate-model
+      labels:
+        lpnet: evalution
+    spec:
+      automountServiceAccountToken: false
+      initContainers:
+      - name: clone-repo
+        image: alpine
+        resources:
+          limits:
+            memory: 4Gi
+            cpu: 1
+          requests:
+            memory: 4Gi
+            cpu: 1
+        command: ["/bin/ash", "-c"]
+        args:
+          [ "apk add git && \
+          cd /opt/repo && \
+          git clone 'https://gitlab.nrp-nautilus.io/Mrigankshi/lpnet-self-supervised' --branch supervised && \
+          echo 'no copy' "]
+        volumeMounts:
+        - mountPath: /awsmount
+          name: inputdata
+        - mountPath: /opt/repo
+          name: gitrepo
+      containers:
+      - name: evaluate-model
+        image: shubhamkulkarni01/lpnet:original_pytorch
+        resources:
+          limits:
+            memory: 64Gi
+            cpu: 16
+            nvidia.com/gpu: 1
+            ephemeral-storage: 50Gi
+          requests:
+            memory: 64Gi
+            cpu: 16
+            nvidia.com/gpu: 1
+            ephemeral-storage: 50Gi
+        command: ["/bin/bash", "-c"]
+        args: ["cd /opt/repo/lpnet-self-supervised && pip install pandas scikit-learn && \
+                pip install wandb && \
+                pip install opencv-contrib-python && \
+                pip install umap-learn && \
+                python validate_model.py $l_index $r_index"]
+        volumeMounts:
+        - mountPath: /data/out
+          name: datablock
+        - mountPath: /opt/repo
+          name: gitrepo
+        - mountPath: /awsmount
+          name: inputdata
+        - mountPath: /dev/shm
+          name: dshm
+      volumes:
+        - name: datablock
+          persistentVolumeClaim:
+            claimName: aditi-data
+        - name: gitrepo
+          emptyDir: {}
+        - name: dshm
+          emptyDir:
+            medium: Memory
+        - name: inputdata
+          emptyDir: {}
+      restartPolicy: Never
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                - key: nvidia.com/gpu.product
+                  operator: In
+                  values:
+                    # - NVIDIA-A100-PCIE-40GB-MIG-2g.10gb
+                    - NVIDIA-A100-SXM4-80GB
+                    # - NVIDIA-RTX-A6000
+                    - NVIDIA-A10
+                    - NVIDIA-A40
+                      # - NVIDIA-GeForce-RTX-3090
+                    # - NVIDIA-GeForce-RTX-2080-Ti
+                    # - NVIDIA-TITAN-Xp
+                    # - NVIDIA-TITAN-RTX
+                - key: kubernetes.io/hostname
+                  operator: NotIn
+                  values:
+                    # - gpn-fiona-mizzou-1.rnet.missouri.edu
+                    # - gpn-fiona-mizzou-2.rnet.missouri.edu
+                    - gpn-fiona-mizzou-3.rnet.missouri.edu
+                    - gpn-fiona-mizzou-4.rnet.missouri.edu
+  backoffLimit: 23

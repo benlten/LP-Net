@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: self-supervised-mn-job$jobidx-commit$trunc_hash-etcd
+  labels:
+    lpnet: multi-node-job$jobidx-commit$trunc_hash-etcd
+spec:
+  template:
+    metadata:
+      name: self-supervised-mn-job$jobidx-commit$trunc_hash-etcd
+      labels:
+        lpnet: multi-node-job$jobidx-commit$trunc_hash-etcd
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - name: etcd-test-pod
+        image: bitnami/etcd
+        env:
+          - name: ALLOW_NONE_AUTHENTICATION
+            value: "yes"
+          - name: ETCDCTL_API
+            value: "2"
+          - name: ETCD_ENABLE_V2
+            value: "true"
+        resources:
+          limits:
+            memory: 16Gi
+            cpu: 8
+          requests:
+            memory: 16Gi
+            cpu: 8
+      restartPolicy: Never
+  backoffLimit: 23

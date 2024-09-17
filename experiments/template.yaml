@@ -1,0 +1,51 @@
+compute:
+  logging_interval: 5
+  num_workers: 12
+  overfit_batches: false
+  num_nodes: 8
+data:
+  basic_level: false
+  classes:
+  - 100
+  dataset: /awsmount
+  find_classes_data_path: 100
+  name: dataset
+  output: /data/out/clean_data
+model:
+  accumulate_grad_batches: 1
+  classes: 128
+  name: simclr
+  zdim: 2048
+name: ""
+training:
+  batch_size: 256
+  epochs: 1000
+  initial_lr: 0.0001
+  lr_schedule_frequency: 1
+  lr_schedule_gamma: 0.99
+transformations:
+  color:
+    active: false
+    grayscale_probability: 0.2
+    jitter_strength: 1.0
+  count: 3
+  crop:
+    crop_size: 180
+    points: 1
+    type: random
+  flip:
+    active: false
+    flip_probability: 0.5
+  foveat:
+    active: false
+  log_polar:
+    active: true
+    lp_out_shape:
+    - 192
+    - 164
+    smoothing: 0
+    mask: true
+  rotate:
+    active: false
+    max_rotate: 15
+  type: simclr

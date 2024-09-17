@@ -1,0 +1,116 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: clnet-devpod
+  labels:
+    clnet: train
+spec:
+  automountServiceAccountToken: false
+  initContainers:
+  - name: clone-repo
+    image: alpine
+    resources:
+      limits:
+        memory: 4Gi
+        cpu: 1
+      requests:
+        memory: 4Gi
+        cpu: 1
+    command: ["/bin/ash", "-c"]
+    args:
+        [ "apk add git && \
+          cd /opt/repo && \
+          git clone 'https://gitlab.nrp-nautilus.io/Mrigankshi/lpnet-self-supervised' --branch supervised && \
+          echo 'no copy' "]
+          # echo 'copying objects' && cp /tempdir/imagenet.tar.gz /awsmount/imagenet.tar.gz && \
+          # echo 'uncompressing' && cd /awsmount && tar xzf imagenet.tar.gz && mv imagenet/ objects/" ]
+    volumeMounts:
+    - mountPath: /tempdir
+      name: oldawsmount
+    - mountPath: /awsmount
+      name: inputdata
+    - mountPath: /opt/repo
+      name: gitrepo
+    - mountPath: /data/out
+      name: datablock
+  containers:
+  - name: train-model
+    image: shubhamkulkarni01/lpnet:original_pytorch
+    resources:
+      limits:
+        memory: 32Gi
+        cpu: 16
+        nvidia.com/gpu: 1
+        ephemeral-storage: 300Gi
+      requests:
+        memory: 32Gi
+        cpu: 16
+        nvidia.com/gpu: 1
+        ephemeral-storage: 300Gi
+    command: ["/bin/bash", "-c"]
+    args: ["tensorboard --logdir /data/out/clean_data --bind_all"]
+    volumeMounts:
+    - mountPath: /oldawsmount
+      name: oldawsmount
+    - mountPath: /newawsmount
+      name: newawsmount
+    - mountPath: /data/out
+      name: datablock
+    - mountPath: /opt/repo
+      name: gitrepo
+    - mountPath: /awsmount
+      name: inputdata
+    - mountPath: /dev/shm
+      name: dshm
+#  - name: jupyter
+#    image: jupyter/base-notebook
+#    resources:
+#      limits:
+#        memory: 32Gi
+#        cpu: 16
+#        nvidia.com/gpu: 1
+#        ephemeral-storage: 300Gi
+#      requests:
+#        memory: 32Gi
+#        cpu: 16
+#        nvidia.com/gpu: 1
+#        ephemeral-storage: 300Gi
+#    args:
+#    - jupyter
+#    - notebook
+#    - --ip=0.0.0.0
+#    - --allow-root # if the UID is 0
+#    workingDir: /data
+#    ports:
+#    - containerPort: 8888
+#    volumeMounts:
+#    - mountPath: /oldawsmount
+#      name: oldawsmount
+#    - mountPath: /newawsmount
+#      name: newawsmount
+#    - mountPath: /data/out
+#      name: datablock
+#    - mountPath: /opt/repo
+#      name: gitrepo
+#    - mountPath: /awsmount
+#      name: inputdata
+#    - mountPath: /dev/shm
+#      name: dshm
+  volumes:
+    - name: datablock
+      persistentVolumeClaim:
+        claimName: mk-data-vol
+    - name: gitrepo
+      emptyDir: {}
+    - name: oldawsmount
+      persistentVolumeClaim:
+        claimName: stim-data-mount
+    - name: newawsmount
+      persistentVolumeClaim:
+        claimName: mk-input-data-vol
+    - name: dshm
+      emptyDir:
+        medium: Memory
+    - name: inputdata
+      emptyDir: {}
+  restartPolicy: Never

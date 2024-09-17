@@ -1,0 +1,2 @@
+from .barlow_twins import BarlowTwins
+from .dimensional_barlow_twins import DimensionalBarlowTwins

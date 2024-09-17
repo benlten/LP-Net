@@ -1,0 +1,56 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: lpnet-build-docker-image
+spec:
+  template:
+    spec:
+      containers: 
+        - name: docker-cmds 
+          image: docker:git
+          command: ['/bin/ash', '-c']
+          args: 
+              ["git config --global http.sslVerify false && \
+                git clone https://gitlab.nrp-nautilus.io/marthagahl/lpnet.git --branch shubham && \
+                cd lpnet && \
+                docker info && \
+                docker build -t shubhamkulkarni01/lpnet:latest -t gitlab-registry.nrp-nautilus.io/marthagahl/lpnet:latest . && \
+                docker login -u skulkarn -p glpat-JzJSjEd1kysXFwXycp18 gitlab-registry.nrp-nautilus.io && \
+                docker push gitlab-registry.nrp-nautilus.io/marthagahl/lpnet:latest && \
+                docker login -u shubhamkulkarni01 -p 2ebe7f8f-2936-4caf-8520-e59605c0e00e && \
+                docker push shubhamkulkarni01/lpnet:latest "]
+          resources: 
+              limits: 
+                  cpu: 4
+                  memory: 8Gi
+              requests: 
+                  cpu: 4
+                  memory: 8Gi
+          env: 
+            - name: DOCKER_HOST 
+              value: unix:///var/run/docker.sock
+          volumeMounts: 
+            - name: docker-port
+              mountPath: /var/run
+        - name: dind-daemon 
+          image: docker:dind
+          resources: 
+              limits: 
+                  cpu: 4
+                  memory: 8Gi
+              requests: 
+                  cpu: 4
+                  memory: 8Gi
+          securityContext: 
+              privileged: true 
+          volumeMounts: 
+            - name: docker-graph-storage 
+              mountPath: /var/lib/docker 
+            - name: docker-port
+              mountPath: /var/run
+      volumes: 
+        - name: docker-graph-storage 
+          emptyDir: {}
+        - name: docker-port
+          emptyDir: {}
+      restartPolicy: OnFailure
